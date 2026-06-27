@@ -103,3 +103,70 @@ Copy-Item -Recurse skills\issue-summary "$HOME\.claude\skills\"         # PowerS
 Keep the folder structure intact — `references/` and `scripts/` must travel with `SKILL.md`,
 since `SKILL.md` links to them by relative path. On Windows, `~` is `%USERPROFILE%`
 (e.g. `C:\Users\<you>\.claude\skills`).
+
+## Adding a new skill to this repo (authoring protocol)
+
+When the user asks you to **add / create / contribute a new skill** to this repo (as opposed to
+installing one), follow this. The goal is a skill that's discoverable by `npx skills` and the
+bundled installer with zero extra wiring.
+
+1. **Clarify the skill, briefly.** Confirm its purpose and the concrete *trigger phrases* a user
+   would say to invoke it. The `description` is what an agent matches against, so these phrases
+   matter more than prose. If the user is vague, ask 1–2 sharp questions, then proceed.
+2. **Pick a folder name = the skill `name`.** Lowercase `kebab-case`, verb-or-noun, unique
+   within `skills/` (check it isn't taken). The folder name **must equal** the `name:` in the
+   frontmatter — installers and slash commands key off it.
+3. **Scaffold the folder** under `skills/<name>/`:
+   - `SKILL.md` — **required.** Frontmatter with exactly `name` and `description`, then the
+     procedure. See the template below and mirror the style of the existing skills.
+   - `references/` — *optional.* Long, load-on-demand docs (recipes, tables, examples). Link to
+     them from `SKILL.md` with **relative** paths so they travel with the skill.
+   - `scripts/` — *optional.* Executable helpers. Keep them dependency-free where possible (the
+     existing `pr-thread.mjs` uses only Node built-ins and an authenticated `gh`). Reference them
+     from `SKILL.md` by relative path.
+   Put heavy detail in `references/`/`scripts/`, not inline — `SKILL.md` should stay scannable.
+4. **Write a strong `description`.** One line, third-person, listing real trigger phrases and
+   when to prefer this skill. This is the single biggest factor in whether the skill actually
+   fires. Use the existing skills' descriptions as the quality bar.
+5. **Register it in the catalog.** Add a row to the **Available skills** table above (here in
+   `CLAUDE.md`) and to the skills table in [`README.md`](README.md). `skills/` stays the source
+   of truth, but keep both tables in sync so humans see it. No other manifest to edit —
+   `install.mjs` and `npx skills` auto-discover any folder with a `SKILL.md`.
+6. **Validate.** Run `node install.mjs --list` and confirm the new skill appears. Optionally do a
+   throwaway install to a temp dir to confirm the whole folder copies cleanly:
+   `node install.mjs <name> --dir ./.testinstall` then inspect and delete it.
+7. **Commit + push.** One skill per commit where practical. Use a clear message
+   (`Add <name> skill: <one-line>`). If commit signing is configured for the agent, sign it.
+   Then report the new skill's path, its trigger phrases, and the install command
+   (`npx skills add Aborii/agents-skills --skill <name>`).
+
+### `SKILL.md` template
+
+```markdown
+---
+name: <kebab-case-name>            # must equal the folder name
+description: <one line: what it does + the trigger phrases a user would say to invoke it,
+  and when to prefer it over alternatives. Third person. This is what agents match on.>
+---
+
+# <Human Title>
+
+<1–2 sentences on what this skill produces and the mental model.>
+
+## When to use
+<the concrete situations / phrasings that should trigger it>
+
+## Steps
+1. <do this>
+2. <then this>
+
+## Output / format
+<what the result should look like, with a short example if helpful>
+
+## Notes & gotchas
+<edge cases; link bundled resources by relative path, e.g. [recipes](references/recipes.md)>
+```
+
+Conventions to keep the catalog consistent: one skill per folder; folder name == `name`;
+frontmatter is exactly `name` + `description`; prefer dependency-free scripts; link bundled
+files by relative path; keep the two catalog tables (this file + `README.md`) in sync.

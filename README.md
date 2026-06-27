@@ -81,6 +81,11 @@ Claude Code discovers the skill from its `SKILL.md` frontmatter automatically â€
 - `SKILL.md` frontmatter has exactly `name` and `description`. The description is what Claude matches against, so it lists concrete trigger phrases.
 - Keep heavy detail in `references/` and executable helpers in `scripts/`; the `SKILL.md` links to them so they load only when needed.
 
+**Adding a new skill?** [`CLAUDE.md`](CLAUDE.md) has a step-by-step authoring protocol (for both
+humans and agents) plus a ready-to-fill `SKILL.md` template. In short: scaffold `skills/<name>/`,
+write a trigger-rich `description`, add a row to the tables here and in `CLAUDE.md`, then
+`node install.mjs --list` to confirm it's discovered.
+
 ## License
 
 [MIT](LICENSE)

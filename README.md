@@ -16,7 +16,9 @@ Each skill lives in its own folder under [`skills/`](skills/) and follows the st
 ```
 agents-skills/
 ├── README.md
+├── CLAUDE.md            # agent instructions: how to install a skill on request
 ├── LICENSE
+├── install.mjs          # cross-platform installer (Node, no deps)
 └── skills/
     ├── issues-to-prs/
     │   ├── SKILL.md              # the workflow
@@ -30,17 +32,34 @@ agents-skills/
 
 ## Installing a skill
 
-Skills are picked up from a skills directory. Copy the folder you want into one of:
+### With the bundled installer (recommended)
 
-- **Personal (all projects):** `~/.claude/skills/`
-- **Project (shared via the repo):** `.claude/skills/` in your project
-
-For example, to install both personally:
+A cross-platform Node installer (no dependencies) copies a skill into the right directory:
 
 ```bash
 git clone https://github.com/Aborii/agents-skills.git
-cp -r agents-skills/skills/issues-to-prs ~/.claude/skills/
-cp -r agents-skills/skills/issue-summary ~/.claude/skills/
+cd agents-skills
+
+node install.mjs --list                     # show installable skills
+node install.mjs issue-summary --user       # ~/.claude/skills/ (all projects)
+node install.mjs issues-to-prs --project    # ./.claude/skills/ (this project)
+node install.mjs issue-summary --dir <path> # any other tool/IDE skills folder
+node install.mjs all --user                 # install everything
+```
+
+### Hand it to an agent
+
+This repo ships a [`CLAUDE.md`](CLAUDE.md) so you can just point an agent at the repo and say
+*"install issue-summary"*. The agent will resolve the skill, **confirm where to install it**
+(user / project / custom dir), copy it in, and verify — without touching your other skills.
+
+### Manual copy
+
+Skills are picked up from a skills directory; copying the folder works too:
+
+```bash
+cp -r skills/issue-summary ~/.claude/skills/        # personal (all projects)
+mkdir -p .claude/skills && cp -r skills/issue-summary .claude/skills/  # project
 ```
 
 Claude Code discovers the skill from its `SKILL.md` frontmatter automatically — no registration step. You can also invoke one explicitly as a slash command, e.g. `/issue-summary`.

@@ -18,7 +18,7 @@ agents-skills/
 ├── README.md
 ├── CLAUDE.md            # agent instructions: how to install a skill on request
 ├── LICENSE
-├── install.mjs          # cross-platform installer (Node, no deps)
+├── install.mjs          # zero-dependency fallback installer (Node, no deps)
 └── skills/
     ├── issues-to-prs/
     │   ├── SKILL.md              # the workflow
@@ -32,30 +32,41 @@ agents-skills/
 
 ## Installing a skill
 
-### With the bundled installer (recommended)
+### Recommended: the `skills` CLI ([vercel-labs/skills](https://github.com/vercel-labs/skills))
 
-A cross-platform Node installer (no dependencies) copies a skill into the right directory:
+Works across **70+ agents/IDEs** (Claude Code, Cursor, Copilot, Windsurf, Cline, Continue, …)
+and reads this repo's `skills/` directory directly — no clone needed:
 
 ```bash
-git clone https://github.com/Aborii/agents-skills.git
-cd agents-skills
-
-node install.mjs --list                     # show installable skills
-node install.mjs issue-summary --user       # ~/.claude/skills/ (all projects)
-node install.mjs issues-to-prs --project    # ./.claude/skills/ (this project)
-node install.mjs issue-summary --dir <path> # any other tool/IDE skills folder
-node install.mjs all --user                 # install everything
+npx skills add Aborii/agents-skills --skill issue-summary           # project scope (default)
+npx skills add Aborii/agents-skills --skill issue-summary -g        # global (all projects)
+npx skills add Aborii/agents-skills --skill issue-summary -a claude-code   # target an agent
+npx skills add Aborii/agents-skills --skill '*'                     # every skill in the repo
+npx skills use Aborii/agents-skills@issue-summary | claude          # try without installing
 ```
+
+> This repo is **private** — your machine must be authenticated to GitHub for the clone to work.
 
 ### Hand it to an agent
 
 This repo ships a [`CLAUDE.md`](CLAUDE.md) so you can just point an agent at the repo and say
-*"install issue-summary"*. The agent will resolve the skill, **confirm where to install it**
-(user / project / custom dir), copy it in, and verify — without touching your other skills.
+*"install issue-summary"*. The agent resolves the skill, **confirms where to install it**
+(project / global / agent), installs it (via `npx skills`, falling back to the bundled script or
+a manual copy), and verifies — without touching your other skills.
 
-### Manual copy
+### Fallback: the bundled installer (zero-dependency Node, offline, no telemetry)
 
-Skills are picked up from a skills directory; copying the folder works too:
+For when you'd rather not use `npx`/network. Targets Claude Code's skills dirs (or any path):
+
+```bash
+git clone https://github.com/Aborii/agents-skills.git && cd agents-skills
+node install.mjs --list                     # show installable skills
+node install.mjs issue-summary --user       # ~/.claude/skills/ (all projects)
+node install.mjs issues-to-prs --project    # ./.claude/skills/ (this project)
+node install.mjs issue-summary --dir <path> # any other tool/IDE skills folder
+```
+
+### Last resort: manual copy
 
 ```bash
 cp -r skills/issue-summary ~/.claude/skills/        # personal (all projects)

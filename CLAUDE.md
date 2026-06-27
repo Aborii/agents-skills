@@ -29,59 +29,77 @@ When the user hands you this repo and mentions a skill — e.g. *"install issue-
    - **Project scope** — only the current project/repo.
    - **Custom directory** — an explicit path (for another tool/IDE).
    Propose a sensible default (user scope) but **do not install until the user confirms.**
-3. **Install** by copying the whole skill folder into the chosen skills directory (see targets
-   below). Prefer the bundled script; fall back to a manual copy if you can't run it.
-4. **Verify & report.** Confirm `SKILL.md` (and any `references/`/`scripts/`) landed at the
-   destination, then tell the user the path and how to use it (it auto-loads by description, or
-   can be invoked as a slash command like `/issue-summary`). Suggest restarting the agent/IDE if
-   it caches its skills list.
+3. **Install** with the chosen tool (see "How to install" below). Prefer `npx skills`; fall
+   back to the bundled script, then a manual copy, depending on what's available.
+4. **Verify & report.** Confirm the skill landed (its `SKILL.md` plus any `references/`/`scripts/`),
+   then tell the user where it went and how to use it (it auto-loads by description, or can be
+   invoked as a slash command like `/issue-summary`). Suggest restarting the agent/IDE if it
+   caches its skills list.
 
 Never install silently or pick a destination on the user's behalf without the confirmation in
-step 2. Installing only ever **copies files into a skills directory** — it doesn't modify the
-user's existing skills unless they pass `--force` to overwrite a same-named one.
-
-## Install targets (general — works across agents, IDEs, and projects)
-
-Skills are discovered from a skills directory. The common ones:
-
-| Scope | Path | Use when |
-| ----- | ---- | -------- |
-| **User** (Claude Code, all projects) | `~/.claude/skills/<skill>` | The user wants it everywhere. |
-| **Project** (Claude Code, shared in repo) | `<project>/.claude/skills/<skill>` | Scoped to one repo; committable for the team. |
-| **Custom / other tool** | `<path>/<skill>` | Another agent or IDE that loads skills from a specific folder. |
-
-On Windows, `~` is `%USERPROFILE%` (e.g. `C:\Users\<you>\.claude\skills`).
+step 2. Installing only ever **adds files to a skills directory** — it doesn't modify the user's
+existing skills (a same-named skill is left alone unless the user opts into overwriting).
 
 ## How to install
 
-### Preferred: the bundled installer (cross-platform Node, no deps)
+Pick the first option that's available in the environment.
+
+### 1. Preferred: `npx skills` (vercel-labs/skills)
+
+The [`skills` CLI](https://github.com/vercel-labs/skills) installs into **70+ agents/IDEs**
+(Claude Code, Cursor, Copilot, Windsurf, Cline, Continue, …), each with the correct paths, and
+supports symlink-or-copy, project/global scope, plus `update`/`remove`. It discovers skills from
+this repo's top-level `skills/` directory automatically.
 
 ```bash
-node install.mjs --list                      # show installable skills
-node install.mjs issue-summary --user        # -> ~/.claude/skills/issue-summary
-node install.mjs issues-to-prs --project     # -> <cwd>/.claude/skills/issues-to-prs
-node install.mjs issue-summary --dir /path/to/skills   # any tool/IDE
-node install.mjs all --user                  # install everything
-node install.mjs issue-summary --user --force  # overwrite an existing copy
+# install a specific skill (project scope is the default)
+npx skills add Aborii/agents-skills --skill issue-summary
+
+# choose the target agent explicitly (e.g. Claude Code), or all agents
+npx skills add Aborii/agents-skills --skill issue-summary -a claude-code
+npx skills add Aborii/agents-skills --skill issue-summary --agent '*'
+
+# global (all the user's projects) instead of project scope
+npx skills add Aborii/agents-skills --skill issue-summary -g
+
+# every skill in the repo
+npx skills add Aborii/agents-skills --skill '*'
+
+# non-interactive copy instead of the default symlink (CI / no-symlink envs)
+npx skills add Aborii/agents-skills --skill issue-summary --copy -y
+
+# try a skill without installing it (pipes a prompt into the agent)
+npx skills use Aborii/agents-skills@issue-summary | claude
 ```
 
-### Fallback: manual copy (when you can't run scripts)
+Map step 2's confirmed scope to the flags: **project** → default, **user/global** → `-g`,
+and pass `-a <agent>` for the user's tool. This repo is **private**, so the user's machine must
+be authenticated to GitHub for the clone to succeed.
 
-Copy the skill folder verbatim into the target skills directory:
+### 2. Fallback: the bundled installer (zero-dependency Node, offline, no telemetry)
+
+Use when `npx`/network/telemetry is undesirable. Targets Claude Code's skills dirs (or any path):
 
 ```bash
-# user scope
-cp -r skills/issue-summary ~/.claude/skills/
-
-# project scope
-mkdir -p .claude/skills && cp -r skills/issue-summary .claude/skills/
+node install.mjs --list                       # show installable skills
+node install.mjs issue-summary --user         # -> ~/.claude/skills/issue-summary
+node install.mjs issues-to-prs --project      # -> <cwd>/.claude/skills/issues-to-prs
+node install.mjs issue-summary --dir <path>   # any tool/IDE skills folder
+node install.mjs all --user                   # install everything
+node install.mjs issue-summary --user --force # overwrite an existing copy
 ```
 
-PowerShell:
+### 3. Last resort: manual copy
+
+```bash
+cp -r skills/issue-summary ~/.claude/skills/                            # user scope
+mkdir -p .claude/skills && cp -r skills/issue-summary .claude/skills/   # project scope
+```
 
 ```powershell
-Copy-Item -Recurse skills\issue-summary "$HOME\.claude\skills\"
+Copy-Item -Recurse skills\issue-summary "$HOME\.claude\skills\"         # PowerShell
 ```
 
 Keep the folder structure intact — `references/` and `scripts/` must travel with `SKILL.md`,
-since `SKILL.md` links to them by relative path.
+since `SKILL.md` links to them by relative path. On Windows, `~` is `%USERPROFILE%`
+(e.g. `C:\Users\<you>\.claude\skills`).

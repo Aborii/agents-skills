@@ -2,8 +2,9 @@
 name: version-release
 description: >-
   Cut a versioned release of a repo end-to-end: pick a version bump, merge the
-  integration branch into the release branch, tag it, and publish a GitHub
-  release with generated notes. Use this whenever the user asks to "make/cut/create
+  integration branch into the release branch, tag it, publish a GitHub
+  release with generated notes, and open a pinned release-announcement issue
+  (closing the prior one). Use this whenever the user asks to "make/cut/create
   a release", "release a new version", "publish a release", "tag a release", "bump
   the version and release", "ship vX", or types /version-release — even if they
   don't spell out every step. This is the AI-agent equivalent of a `pnpm release`

@@ -10,6 +10,7 @@ Each skill lives in its own folder under [`skills/`](skills/) and follows the st
 | ----- | ------------ | ---------------- |
 | [`issues-to-prs`](skills/issues-to-prs) | End-to-end pipeline: turns a batch of bugs into researched GitHub issues, then into reviewed, self-corrected PRs — one stacked git-worktree branch per item. | You hand over a list of issues/bugs and want them taken all the way through ("fix these all", "create issues and PRs for these"). |
 | [`issue-summary`](skills/issue-summary) | Produces a tight, 2-sentence TL;DR of a tracker issue (what / cause / effect / should-be). | You paste an issue URL or number and want the gist fast ("tldr this issue", "what's this ticket about"). |
+| [`version-release`](skills/version-release) | Cuts a versioned release end-to-end: bump on the integration branch, merge into the release branch, tag, publish the GitHub release, and open a pinned release-announcement issue (closing the previous one). Handles the real-world gotchas — blocking hooks, merge-vs-rebase signing, stale tags, conflicts. | You want to ship a release ("cut/make a release", "release a new version", "bump the version and release", "ship vX"). |
 
 ## Repository layout
 

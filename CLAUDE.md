@@ -13,6 +13,7 @@ job is to help them **install skills from it**, following the protocol below.
 | ----- | ------ | ------- |
 | `issues-to-prs` | [`skills/issues-to-prs`](skills/issues-to-prs) | Batch of bugs → researched GitHub issues → reviewed, self-corrected stacked PRs. |
 | `issue-summary` | [`skills/issue-summary`](skills/issue-summary) | Tight 2-sentence TL;DR of a tracker issue (what / cause / effect / should-be). |
+| `version-release` | [`skills/version-release`](skills/version-release) | End-to-end versioned release: bump → merge integration into release branch → tag → GitHub release → pinned announcement issue (closes the prior one). |
 
 Treat `skills/` as the source of truth — if a folder there isn't in this table, it's still
 installable. Run `node install.mjs --list` to enumerate skills programmatically.

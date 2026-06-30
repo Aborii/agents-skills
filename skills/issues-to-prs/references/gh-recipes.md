@@ -46,10 +46,14 @@ List/confirm: `gh issue list --label bug --limit 50`
 
 ### Stacked worktree
 
+All worktrees live in one sibling folder `../<repo>-worktrees/` (next to the original repo,
+per the global *Git worktree placement* rule); each branch gets its own subfolder. Git creates
+the intermediate `<repo>-worktrees/` path on demand.
+
 ```bash
 git fetch origin
 # first bug: base on origin/dev; later bugs: base on the previous bug's branch
-git worktree add ../<repo>-<slug> -b fix/<slug> <prev-ref>
+git worktree add ../<repo>-worktrees/<slug> -b fix/<slug> <prev-ref>
 #   <prev-ref> = origin/dev   (issue #1)
 #   <prev-ref> = fix/<prev>   (issue #2+)
 ```
@@ -57,7 +61,7 @@ git worktree add ../<repo>-<slug> -b fix/<slug> <prev-ref>
 Propagate a parent's later commits into a child (MERGE, never rebase — rebase breaks signing):
 
 ```bash
-git -C ../<repo>-<slug> merge fix/<prev>
+git -C ../<repo>-worktrees/<slug> merge fix/<prev>
 ```
 
 ### Commit (signed) + push

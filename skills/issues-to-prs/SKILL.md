@@ -41,8 +41,10 @@ discrete bug items first. Then run two phases:
 
 - **NEVER work in the main checkout — always use a dedicated worktree on its own branch.**
   Every code change in this workflow happens inside a git worktree created for that bug's
-  branch (`git worktree add ../<repo>-<slug> -b fix/<slug> <prev>`), never in the user's main
-  repo folder and never directly on `dev`/`main`. Do not edit, commit, or run gates against the
+  branch (`git worktree add ../<repo>-worktrees/<slug> -b fix/<slug> <prev>`), never in the
+  user's main repo folder and never directly on `dev`/`main`. **All worktrees go into a single
+  sibling folder `<repo>-worktrees/` next to the original repo** (per the global *Git worktree
+  placement* rule) — one subfolder per branch, never loose beside the repo. Do not edit, commit, or run gates against the
   main checkout's working tree. The **only** exception is when the user *explicitly* tells you to
   work in the main folder for a given run; absent that explicit instruction, default to a
   worktree branch every time, no matter how small the fix looks.
@@ -147,9 +149,11 @@ For issue *i* (`prev` = the previous bug's branch, or `origin/dev` for the first
 1. **Branch in a worktree, stacked on `prev`.**
    ```bash
    git fetch origin
-   git worktree add ../<repo>-<slug> -b fix/<slug> <prev>
+   git worktree add ../<repo>-worktrees/<slug> -b fix/<slug> <prev>
    ```
-   (`<prev>` = `origin/dev` for i=1, else `fix/<prev-slug>`.) Work inside that worktree.
+   (`<prev>` = `origin/dev` for i=1, else `fix/<prev-slug>`. The worktree lands in the shared
+   `<repo>-worktrees/` folder next to the repo; git creates the intermediate path.) Work inside
+   that worktree.
 
 2. **Re-investigate, *then* implement.** First re-derive the fix against the live code (per the
    "the issue's Fix is a hypothesis" rule above): re-read the real code paths now, confirm the
@@ -190,7 +194,7 @@ For issue *i* (`prev` = the previous bug's branch, or `origin/dev` for the first
 6. **Self-review (always).** Diff *this bug only* against the parent branch and review it
    skeptically for correctness bugs and obvious cleanups:
    ```bash
-   git -C ../<repo>-<slug> diff <prev>...HEAD
+   git -C ../<repo>-worktrees/<slug> diff <prev>...HEAD
    ```
    Post **each** finding as an **inline** PR comment with a concrete suggested fix (see
    [references/gh-recipes.md](references/gh-recipes.md) for the exact `gh api .../comments`

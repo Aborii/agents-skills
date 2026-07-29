@@ -18,8 +18,11 @@ Answer the user's question by reading the code. Nothing else.
 
 ## Rules
 
-1. **Read-only, and it stays locked.** Never edit, create, or delete a file.
-   Never run a migration, a test suite, a dev server, or a git write command.
+1. **Read-only, and it stays locked.** Read, search, and inspect only. Never
+   edit, create, or delete a file, and never run a command that changes state
+   anywhere — on disk, in git, in a database, or over the network. Migrations,
+   test suites, dev servers, installs, and git writes are all out, and so is
+   anything else with a side effect.
    If the answer needs a fix, describe the fix — do not apply it. See
    **The read-only lock** below: this holds for the rest of the turn, even if
    the user asks for the change right after the answer.
@@ -76,7 +79,10 @@ root so they are clickable:
 1. **Find the code.** Grep / glob for the names in the question. If the
    question spans repos (an API contract, a shared type), check both sides.
    Delegate wide searches to a subagent only if the search is genuinely broad;
-   for a normal question just read the files.
+   for a normal question just read the files. When delegating, use a read-only
+   agent type (e.g. `Explore`) and restate the lock in the task prompt — the
+   subagent must not edit, create, or delete anything either. The lock covers
+   every tool the turn reaches, directly or through a delegate.
 2. **Read enough to be sure.** Follow the call chain until the answer is
    actually established, not guessed. Cheap checks — reading the caller,
    reading the type, reading the migration — are worth it.
@@ -91,9 +97,10 @@ root so they are clickable:
    - **Unknowns** — if something could not be confirmed from the code (runtime
      data, an env value, a third-party response), say so in one line. Do not
      fill the gap with a guess.
-   - **Summary** — exactly two sentences, last thing in the answer, under a
-     `## Summary` heading. First sentence: the answer. Second sentence: what
-     it means for the user (the cause, the consequence, or the next step).
+   - **Summary** — exactly two sentences, closing the written answer, under a
+     `## Summary` heading. Nothing but the follow-up question may come after it.
+     First sentence: the answer. Second sentence: what it means for the user
+     (the cause, the consequence, or the next step).
 
 4. **Ask a question.** See below — required, every time.
 
@@ -147,7 +154,8 @@ look thorough. The two-sentence summary is required either way.
 - Turning "how does login work" into a security review.
 - Starting to fix the bug you were asked to explain.
 - Fifteen bullet points where three sentences answer it.
-- A summary that is three sentences, or one, or is not at the end.
+- A summary that is three sentences, or one, or is buried mid-answer instead of
+  closing it.
 - Ending the turn without asking a question.
 - Asking "want me to fix it?" — that is not on the table in this turn.
 - Editing a file because the user said "now fix it" after the answer.

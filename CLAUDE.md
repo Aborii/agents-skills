@@ -15,6 +15,11 @@ job is to help them **install skills from it**, following the protocol below.
 | `issue-summary` | [`skills/issue-summary`](skills/issue-summary) | Tight 2-sentence TL;DR of a tracker issue (what / cause / effect / should-be). |
 | `version-release` | [`skills/version-release`](skills/version-release) | End-to-end versioned release: bump → merge integration into release branch → tag → GitHub release → pinned announcement issue (closes the prior one). |
 | `ask` | [`skills/ask`](skills/ask) | Read-only answer to "how does X work" / "why does this bug happen", from the actual code: plain English, cited by repo + file:line, 2-sentence summary, always ends with a follow-up question. |
+| `change-plan` | [`skills/change-plan`](skills/change-plan) | Pre-implementation plan summary: a numbered "What I'll do" list of concrete edits with `file:line` links, then the open decisions that block starting. |
+| `challenge-idea` | [`skills/challenge-idea`](skills/challenge-idea) | Adversarial pressure-test of an idea — attacks assumptions, exposes flaws, names risks, with no flattery. |
+| `grilling` | [`skills/grilling`](skills/grilling) | One-question-at-a-time interview that walks the design tree until the plan is fully resolved. |
+| `grill-me` | [`skills/grill-me`](skills/grill-me) | Slash-command launcher for `grilling` (`disable-model-invocation`, so it only fires when invoked by name). |
+| `handoff` | [`skills/handoff`](skills/handoff) | Compacts the current conversation into a handoff document a fresh agent can resume from (`disable-model-invocation`, so it only fires when invoked as `/handoff`). |
 
 Treat `skills/` as the source of truth — if a folder there isn't in this table, it's still
 installable. Run `node install.mjs --list` to enumerate skills programmatically.

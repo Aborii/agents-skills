@@ -19,7 +19,7 @@ job is to help them **install skills from it**, following the protocol below.
 | `challenge-idea` | [`skills/challenge-idea`](skills/challenge-idea) | Adversarial pressure-test of an idea — attacks assumptions, exposes flaws, names risks, with no flattery. |
 | `grilling` | [`skills/grilling`](skills/grilling) | One-question-at-a-time interview that walks the design tree until the plan is fully resolved. |
 | `grill-me` | [`skills/grill-me`](skills/grill-me) | Slash-command launcher for `grilling` (`disable-model-invocation`, so it only fires when invoked by name). |
-| `handoff` | [`skills/handoff`](skills/handoff) | Compacts the current conversation into a handoff document a fresh agent can resume from. |
+| `handoff` | [`skills/handoff`](skills/handoff) | Compacts the current conversation into a handoff document a fresh agent can resume from (`disable-model-invocation`, so it only fires when invoked as `/handoff`). |
 
 Treat `skills/` as the source of truth — if a folder there isn't in this table, it's still
 installable. Run `node install.mjs --list` to enumerate skills programmatically.

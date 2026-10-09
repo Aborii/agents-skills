@@ -132,8 +132,8 @@ user decide rather than silently continuing. Never let tests hit the network.
   Render it to a file and check it is not empty before passing it:
 
   ```bash
-  node scripts/release-notes.mjs github X.Y.Z > release-body.md && test -s release-body.md
-  gh release create vX.Y.Z --target <main> --title "vX.Y.Z" --notes-file release-body.md --generate-notes
+  node scripts/release-notes.mjs github X.Y.Z > /tmp/release-body.md && test -s /tmp/release-body.md
+  gh release create vX.Y.Z --target <main> --title "vX.Y.Z" --notes-file /tmp/release-body.md --generate-notes
   ```
 
   Use a file, never `<(…)` and never a pipe into `--notes-file -`. Process
@@ -239,8 +239,8 @@ git push origin v2.1.0
 git rev-list -n1 v2.1.0                 # must equal origin/main tip
 gh release create v2.1.0 --target main --title "v2.1.0" --generate-notes
 # ...or, with release notes: body from the note, rendered to a checked file
-node scripts/release-notes.mjs github 2.1.0 > release-body.md && test -s release-body.md
-gh release create v2.1.0 --target main --title "v2.1.0" --notes-file release-body.md --generate-notes
+node scripts/release-notes.mjs github 2.1.0 > /tmp/release-body.md && test -s /tmp/release-body.md
+gh release create v2.1.0 --target main --title "v2.1.0" --notes-file /tmp/release-body.md --generate-notes
 
 # announce: pinned release issue (highlights from merged PRs since last tag)
 git log v2.0.0..main --merges --oneline    # source the "What's new" list

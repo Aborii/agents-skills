@@ -75,6 +75,22 @@ user decide rather than silently continuing. Never let tests hit the network.
 - Edit only the `version` field in `package.json` (a targeted single-line change
   keeps the diff clean — don't reformat the whole file). Compute the new number
   from the chosen bump.
+- **Write the release note in the same commit, when the repo keeps them.** A
+  repo with `scripts/release-notes.mjs` and a `release-notes/` folder ships a
+  plain-English "What's new" note per version. The product shows it in-app,
+  and step 5 turns it into the GitHub release body. Skip this bullet for a
+  repo without that script.
+  1. `node scripts/release-notes.mjs new X.Y.Z` writes the template.
+  2. Fill it from what actually merged since the previous tag
+     (`git log <prevTag>..<dev> --merges --oneline` and the PR bodies). Follow
+     `release-notes/README.md`: a one- or two-sentence summary, then New /
+     Improved / Fixed bullets saying what changed *for the person using it*,
+     in plain words. PR numbers, file names, endpoints and migrations go under
+     `## Technical` only. Leave out work that is merged but not in this release.
+  3. `node scripts/release-notes.mjs generate`, then `… check`. `check` rejects
+     code, links and PR numbers in the plain-English parts and enforces the
+     length caps; fix the note rather than the rule.
+  4. Commit the note and the regenerated module with the version bump.
 - Commit it: `chore(release): vX.Y.Z`.
 - Push `<dev>`.
 
@@ -111,6 +127,18 @@ user decide rather than silently continuing. Never let tests hit the network.
   commit. If it's wrong, move it (`git tag -d`, recreate on the right commit,
   `git push --force origin vX.Y.Z`) and recreate the release.
 - Create the release: `gh release create vX.Y.Z --target <main> --title "vX.Y.Z" --generate-notes`.
+  **When the repo keeps release notes** (step 3), the body comes from the note:
+  the plain English first, then *Technical details*, then GitHub's PR list.
+  Render it to a file and check it is not empty before passing it:
+
+  ```bash
+  node scripts/release-notes.mjs github X.Y.Z > /tmp/release-body.md && test -s /tmp/release-body.md
+  gh release create vX.Y.Z --target <main> --title "vX.Y.Z" --notes-file /tmp/release-body.md --generate-notes
+  ```
+
+  Use a file, never `<(…)` and never a pipe into `--notes-file -`. Process
+  substitution hands a Windows `gh` a `/dev/fd` path it cannot open. A pipe
+  publishes an empty body, with no error, when the script fails.
   Capture and report the URL. Note: `gh release edit` does **not** accept
   `--generate-notes`; if you need to regenerate notes, delete and recreate the
   release (`gh release delete vX.Y.Z --yes --cleanup-tag=false`).
@@ -125,7 +153,9 @@ pinned issue, or one carrying a `release` label).
 - **Gather the highlights from what actually shipped** since the previous tag —
   the merged PRs (`git log <prevTag>..<main> --merges --oneline`) and the
   release's generated notes. Group them into a short, skimmable "What's new"
-  bullet list. Don't invent entries; only list what merged.
+  bullet list. Don't invent entries; only list what merged. When the repo keeps
+  release notes, start from the note's plain-English bullets so the
+  announcement, the release and the in-app "What's new" say the same thing.
 - **Title:** `🎉 <package-name> vX.Y.Z released` (read `name` from `package.json`).
 - **Body:** a one-sentence intro, a **What's new in vX.Y.Z** bullet list (emoji
   bullets like the prior announcement read well), the test/suite count if you
@@ -189,6 +219,10 @@ git rev-list --left-right --count dev...origin/dev
 
 # bump on dev (hooks off so blocking post-commit hooks don't fire)
 #   ...edit package.json "version"...
+# if the repo keeps release notes: write the plain-English note in the same commit
+node scripts/release-notes.mjs new 2.1.0      # then fill release-notes/2.1.0.md
+node scripts/release-notes.mjs generate && node scripts/release-notes.mjs check
+git add -A release-notes
 HUSKY=0 git -c core.hooksPath=/tmp/nohooks commit -am "chore(release): v2.1.0"
 git push origin dev
 
@@ -204,6 +238,9 @@ git tag -a v2.1.0 -m "Release v2.1.0"
 git push origin v2.1.0
 git rev-list -n1 v2.1.0                 # must equal origin/main tip
 gh release create v2.1.0 --target main --title "v2.1.0" --generate-notes
+# ...or, with release notes: body from the note, rendered to a checked file
+node scripts/release-notes.mjs github 2.1.0 > /tmp/release-body.md && test -s /tmp/release-body.md
+gh release create v2.1.0 --target main --title "v2.1.0" --notes-file /tmp/release-body.md --generate-notes
 
 # announce: pinned release issue (highlights from merged PRs since last tag)
 git log v2.0.0..main --merges --oneline    # source the "What's new" list
